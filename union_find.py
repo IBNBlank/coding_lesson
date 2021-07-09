@@ -3,7 +3,7 @@
 # Copyright 2021 HUST Control Science Innovation Base.
 # All rights reserved.
 # Author: Dong Zhaorui 847235539@qq.com
-# Date  : 2021-07-08
+# Date  : 2021-07-09
 ################################################################
 
 # 班上有N名学生。其中有些人是朋友，有些则不是。
@@ -13,41 +13,38 @@
 # 你必须输出所有学生中的已知的朋友圈总数
 
 
-class SearchingTool(object):
+class UnionFind(object):
     def __init__(self, student_list):
         self.__student_list = student_list
         self.__student_length = len(student_list)
-        self.__loop_count = 0
-        self.__visited = [False for _ in range(self.__student_length)]
-        # BFS
-        self.__search_queue = []
+        self.__father_list = [i for i in range(self.__student_length)]
+        self.__count = 0
 
     def find_loop_count(self):
         for i in range(self.__student_length):
-            if not self.__visited[i]:
-                # self.__breadth_first_search(i)
-                self.__depth_first_search(i)
-
-                self.__loop_count += 1
-
-        return self.__loop_count
-
-    def __breadth_first_search(self, i):
-        self.__search_queue.append(i)
-        # 队列不为空，继续层次搜索
-        while self.__search_queue:
-            start = self.__search_queue.pop(0)
             for j in range(self.__student_length):
-                # 如果start和j是朋友且j未被标记过
-                if self.__student_list[start][j] and not self.__visited[j]:
-                    self.__search_queue.append(j)
-                    self.__visited[start] = True
+                if self.__student_list[i][j]:
+                    self.__union(i,j)
+        
+        for i in range(self.__student_length):
+            if self.__find(i) == i:
+            # if self.__father_list[i] == i:
+                self.__count += 1
+        
+        return self.__count
 
-    def __depth_first_search(self, i):
-        self.__visited[i] = True
-        for j in range(self.__student_length):
-            if self.__student_list[i][j] and not self.__visited[j]:
-                self.__depth_first_search(j)
+    def __union(self, item_1, item_2):
+        self.__father_list[self.__find(item_1)] = self.__find(item_2)
+
+    def __find(self, item):
+        if self.__father_list[item] == item:
+            return item
+        else:
+            self.__father_list[item] = self.__find(self.__father_list[item])
+            return self.__father_list[item]
+
+    def __connected(self, item_1, item_2):
+        return self.__find(item_1) == self.__find(item_2)
 
 
 def main():
@@ -55,8 +52,8 @@ def main():
                     [False, True, True]]
     # student_list = [[True, True, False], [True, True, False],
     #                 [False, False, True]]
-    searching_tool = SearchingTool(student_list)
-    print(searching_tool.find_loop_count())
+    union_find = UnionFind(student_list)
+    print(union_find.find_loop_count())
 
 
 if __name__ == '__main__':
